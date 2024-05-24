@@ -1,9 +1,17 @@
-FROM gcr.io/distroless/nodejs:18
+FROM node:alpine AS build
 
 WORKDIR /app
-COPY package*.json .
+
+COPY package*.json ./
+
 RUN npm ci --only=production
 
 COPY . .
 
-CMD ["node", "app.js"]
+FROM gcr.io/distroless/nodejs18
+
+WORKDIR /app
+
+COPY --from=build /app /app
+
+CMD ["app.js"]
